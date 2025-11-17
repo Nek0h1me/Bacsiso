@@ -70,7 +70,7 @@ Dự án **Hệ thống Quản lý Dịch vụ Y tế Số (Neko Care)** là m�
 </p>
 
 <p align="center">
-<img src="user.png" alt="User Dashboard" style="max-width:100%;">
+<img src="11.png" alt="User Dashboard" style="max-width:100%;">
 <br>
 <em>2. Bảng điều khiển Người dùng</em>
 </p>
