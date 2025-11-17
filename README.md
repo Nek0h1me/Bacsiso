@@ -1,4 +1,3 @@
-# HỆ THỐNG QUẢN LÝ DỊCH VỤ Y TẾ SỐ (NEKO CARE)
 
 <h2 align="center">
 <a href="https://dainam.edu.vn/vi/khoa-cong-nghe-thong-tin">
