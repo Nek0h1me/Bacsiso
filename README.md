@@ -1,122 +1,144 @@
+# HỆ THỐNG QUẢN LÝ DỊCH VỤ Y TẾ SỐ (NEKO CARE)
+
 <h2 align="center">
 <a href="https://dainam.edu.vn/vi/khoa-cong-nghe-thong-tin">
 🎓 Faculty of Information Technology (DaiNam University)
 </a>
 </h2>
+
 <h2 align="center">
 HỆ THỐNG QUẢN LÝ DỊCH VỤ Y TẾ SỐ (NEKO CARE)
 </h2>
+
 <div align="center">
 <p align="center">
-<!-- Thay thế bằng logo phù hợp nếu có -->
 <img src="docs/dnu_logo.png" alt="DaiNam University Logo" width="200"/>
 </p>
-
-<!-- Thêm các badge liên quan đến công nghệ Flask và Python -->
-
 </div>
 
-📖 1. Giới thiệu
+---
 
-Dự án Hệ thống Quản lý Dịch vụ Y tế Số (Neko Care) là một ứng dụng web dựa trên kiến trúc Client-Server, sử dụng framework Flask của Python. Hệ thống nhằm số hóa các quy trình cơ bản trong phòng khám, bao gồm: đặt lịch hẹn, quản lý tồn kho thuốc, mua thuốc trực tuyến và cung cấp trợ lý ảo (Chatbot AI) để hỗ trợ người dùng.
+## 📖 1. Giới thiệu
 
-🎯 Mục tiêu hệ thống
+Dự án **Hệ thống Quản lý Dịch vụ Y tế Số (Neko Care)** là một ứng dụng web dựa trên kiến trúc Client-Server, sử dụng **Flask (Python)**. Hệ thống nhằm số hóa quy trình của phòng khám: đặt lịch hẹn, quản lý kho thuốc, mua thuốc trực tuyến và trợ lý ảo AI.
 
-Phân quyền người dùng: Cung cấp hai vai trò (user và admin) với các bảng điều khiển riêng biệt.
+### 🎯 Mục tiêu hệ thống
 
-Quản lý lịch hẹn: Cho phép người dùng đặt lịch, tải lên hình ảnh liên quan, và Admin duyệt/từ chối lịch hẹn qua email.
+* **Phân quyền người dùng:** user & admin với giao diện riêng.
+* **Quản lý lịch hẹn:** người dùng đặt lịch + upload hình ảnh; admin duyệt từ email.
+* **Thương mại điện tử Y tế:** mua thuốc online, tự động trừ tồn kho.
+* **Tích hợp AI Chatbot:** sử dụng API Ollama (Gemma 3B).
+* **Database:** lưu người dùng, lịch hẹn, thuốc, đơn hàng bằng SQLite.
 
-Thương mại điện tử Y tế: Cho phép người dùng tìm kiếm, xem tồn kho và đặt mua thuốc trực tuyến. Admin quản lý kho thuốc (thêm/sửa/xóa) và xử lý đơn hàng, có cơ chế trừ tồn kho tự động.
+---
 
-Tích hợp AI: Sử dụng API Chatbot cục bộ (Ollama) để cung cấp hỗ trợ tức thì về các thắc mắc sức khỏe cơ bản.
+## 🔧 2. Công nghệ sử dụng
 
-Cấu trúc dữ liệu: Sử dụng SQLite để lưu trữ an toàn thông tin người dùng, lịch hẹn, thuốc và đơn hàng.
+### Backend:
 
-🔧 2. Ngôn ngữ lập trình & Công nghệ sử dụng
+* Flask
+* Flask-Login
+* SQLite3
+* Requests
+* SendGrid Mail API
 
-Backend:  (Flask, Flask-Login, requests, sqlite3).
+### Frontend:
 
-Frontend: HTML, Jinja2, Bootstrap 5, JavaScript (Fetch API).
+* HTML + CSS
+* Jinja2 (template)
+* Bootstrap 5
+* JavaScript (Fetch API)
 
-Cơ sở dữ liệu: SQLite.
+### AI Chatbot:
 
-Dịch vụ Mail: SendGrid.
+* Ollama (Gemma 3B / Gemma 1B)
 
-Mô hình AI: Ollama API (sử dụng mô hình Gemma 3B hoặc tương đương).
+---
 
-🖼️ 3. Hình ảnh các chức năng
+## 🖼️ 3. Hình ảnh các chức năng
 
 <p align="center">
-<img src="docs/1_admin_dashboard.png" alt="Mô tả: Giao diện Admin tổng quan" style="max-width:100%;">
-
-
-
-
-
-<em>1: Bảng điều khiển Admin (Thống kê, Lịch hẹn, Quản lý Thuốc)</em>
+<img src="docs/1_admin_dashboard.png" alt="Admin Dashboard" style="max-width:100%;">
+<br>
+<em>1. Bảng điều khiển Admin</em>
 </p>
+
 <p align="center">
-<img src="docs/2_user_dashboard.png" alt="Mô tả: Giao diện User" style="max-width:100%;">
-
-
-
-
-
-<em>2: Bảng điều khiển Người dùng (Đặt lịch & Mua thuốc tìm kiếm tự động)</em>
+<img src="docs/2_user_dashboard.png" alt="User Dashboard" style="max-width:100%;">
+<br>
+<em>2. Bảng điều khiển Người dùng</em>
 </p>
+
 <p align="center">
-<img src="docs/3_floating_chatbot.png" alt="Mô tả: Chatbot nổi" style="max-width:100%;">
-
-
-
-
-
-<em>3: Trợ lý ảo Chatbot (tích hợp Ollama)</em>
+<img src="docs/3_floating_chatbot.png" alt="Floating Chatbot" style="max-width:100%;">
+<br>
+<em>3. Trợ lý ảo Chatbot (Ollama)</em>
 </p>
 
-⚙️ 4. Cài đặt và Hướng dẫn chạy
+---
 
-4.1. Cài đặt môi trường Python
+## ⚙️ 4. Cài đặt và Hướng dẫn chạy
 
-Clone repository và cài đặt các thư viện Python cần thiết:
+### **4.1. Cài đặt môi trường Python**
 
-# Giả sử bạn đang ở thư mục dự án
+```bash
 pip install -r requirements.txt
-# (Hoặc cài thủ công: flask, flask-login, sqlite3, sendgrid, requests)
+```
 
+Hoặc tự cài:
 
-4.2. Khởi động Chatbot (Ollama)
+```
+flask, flask-login, sqlite3, sendgrid, requests
+```
 
-Hệ thống sử dụng Ollama để cung cấp dịch vụ Chatbot AI. Bạn cần cài đặt Ollama và đảm bảo nó đang chạy:
+---
 
-# Chạy mô hình gemma3:1b cục bộ
+### **4.2. Khởi động Chatbot (Ollama)**
+
+```bash
 ollama run gemma3:1b
-# Đảm bảo dịch vụ Ollama đang hoạt động trên cổng mặc định (http://localhost:11434)
+```
 
+Kiểm tra Ollama hoạt động tại:
 
-4.3. Khởi tạo Cơ sở dữ liệu
+```
+http://localhost:11434
+```
 
-Hệ thống sẽ tự động khởi tạo CSDL (healthcare.db) và thêm dữ liệu mẫu khi chạy lần đầu. Nếu bạn đã chạy trước đó, hãy xóa healthcare.db để tạo lại các bảng mới (bao gồm medicines và orders).
+---
 
-4.4. Chạy ứng dụng Flask
+### **4.3. Khởi tạo cơ sở dữ liệu**
 
-Chạy tệp chính app.py:
+* Hệ thống tự tạo `healthcare.db` khi chạy lần đầu.
+* Nếu đã có file cũ → xóa để tạo lại bảng `medicines` và `orders`.
 
+---
+
+### **4.4. Chạy ứng dụng Flask**
+
+```bash
 python app.py
+```
 
+Truy cập:
 
-Truy cập: http://127.0.0.1:5000
+```
+http://127.0.0.1:5000
+```
 
-4.5. Tài khoản mặc định
+---
 
-Admin: username: admin, password: 1
+### **4.5. Tài khoản mặc định**
 
-User: username: user1, password: 1
+* **Admin:** admin / 1
+* **User:** user1 / 1
 
-📞 5. Liên hệ
+---
 
-Họ tên: Nguyễn Cao Tùng.
-Lớp: CNTT 16-03.
-Email: nguyentungxneko@gmail.com.
+## 📞 5. Liên hệ
+
+* **Họ tên:** Nguyễn Cao Tùng
+* **Lớp:** CNTT 16-03
+* **Email:** [nguyentungxneko@gmail.com](mailto:nguyentungxneko@gmail.com)
 
 © 2025 AIoTLab, Faculty of Information Technology, DaiNam University. All rights reserved.
