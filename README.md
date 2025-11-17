@@ -64,19 +64,19 @@ Dự án **Hệ thống Quản lý Dịch vụ Y tế Số (Neko Care)** là m�
 ## 🖼️ 3. Hình ảnh các chức năng
 
 <p align="center">
-<img src="docs/1_admin_dashboard.png" alt="Admin Dashboard" style="max-width:100%;">
+<img src="10.png" alt="Admin Dashboard" style="max-width:100%;">
 <br>
 <em>1. Bảng điều khiển Admin</em>
 </p>
 
 <p align="center">
-<img src="docs/2_user_dashboard.png" alt="User Dashboard" style="max-width:100%;">
+<img src="user.png" alt="User Dashboard" style="max-width:100%;">
 <br>
 <em>2. Bảng điều khiển Người dùng</em>
 </p>
 
 <p align="center">
-<img src="docs/3_floating_chatbot.png" alt="Floating Chatbot" style="max-width:100%;">
+<img src="chatbot.png" alt="Floating Chatbot" style="max-width:100%;">
 <br>
 <em>3. Trợ lý ảo Chatbot (Ollama)</em>
 </p>
