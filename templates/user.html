@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard | Hospital Portal</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background: #f4f7f6;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            background-color: #2a9df4 !important;
+        }
+
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+
+        .booking-table {
+            background: #ffffff;
+            border: 1px solid #cde6ff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .booking-table label {
+            font-weight: bold;
+            color: #1a4b7a;
+        }
+
+        .table th {
+            background-color: #2a9df4;
+            color: white;
+            text-align: center;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        #preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* === CSS CHATBOT NỔI (Floating Chatbot) === */
+        #chatbot-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #2a9df4; /* Đổi màu xanh dương cho hợp theme user */
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+        }
+
+        #chatbot-box {
+            position: fixed;
+            bottom: 100px;
+            right: 25px;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        #chat-header {
+            background: #2a9df4; /* Màu header */
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        #chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* Bong bóng chat người dùng */
+        .msg-user {
+            background: #b3e0ff; /* Màu xanh nhạt */
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            width: fit-content;
+            max-width: 80%;
+            margin-left: auto;
+        }
+
+        /* Bong bóng chat Bot */
+        .msg-bot {
+            background: #f0f0f0; 
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            width: fit-content;
+            max-width: 80%;
+        }
+
+        #chat-input-box {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        #chat-input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            outline: none;
+        }
+
+        #send-btn-chat {
+            background: #2a9df4;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+        }
+        
+        /* Hiệu ứng loading */
+        .loading-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 4px;
+            animation: dot-blink 1.4s infinite ease-in-out both;
+        }
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-blink {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* ------------------- CSS cho Autocomplete ------------------- */
+        .medicine-search-container {
+            position: relative;
+        }
+
+        #medicine-results {
+            position: absolute;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            z-index: 10;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .medicine-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .medicine-result-item:hover {
+            background-color: #f0f8ff;
+        }
+        .item-name {
+            font-weight: bold;
+            color: #2a9df4;
+        }
+        .item-info {
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+        /* ----------------------------------------------------------- */
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">🏥 Bác Sĩ Số</a>
+            <div class="ms-auto">
+                <a href="{{ url_for('logout') }}" class="btn btn-light">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- ======================= KHU VỰC CHÍNH (2 CỘT) ======================= -->
+        <div class="row">
+            
+            <!-- CỘT TRÁI: Đặt lịch và Mua Thuốc -->
+            <div class="col-lg-6">
+                
+                <!-- Khu vực ĐẶT LỊCH -->
+                <h3 class="text-primary mb-3">Đặt Lịch Khám</h3>
+                <form method="POST" action="{{ url_for('book') }}" enctype="multipart/form-data" class="booking-table mb-4">
+                    <div class="mb-3">
+                        <label>Loại bệnh / Triệu chứng</label>
+                        <input type="text" name="disease" class="form-control" placeholder="VD: Đau đầu, khó thở..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Ngày khám</label>
+                        <input type="date" name="date" id="date-input" class="form-control"
+                               min="{{ today_date }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Giờ khám</label>
+                        <input type="time" name="time" id="time-input" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label>Ảnh / File khám bệnh</label>
+                        <input type="file" name="image" id="image-upload" class="form-control" accept="image/*">
+                        <img id="preview" src="#" alt="Image Preview">
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success px-4">Đặt Lịch</button>
+                    </div>
+
+                </form>
+                
+                <!-- Khu vực MUA THUỐC (ĐÃ CHUYỂN SANG SEARCH) -->
+                <h3 class="text-primary mt-5 mb-3">Mua Thuốc Trực Tuyến</h3>
+                <div class="booking-table">
+                    
+                    <div class="medicine-search-container mb-4">
+                        <label for="medicine-search">Tìm kiếm Tên Thuốc</label>
+                        <input type="text" id="medicine-search" class="form-control" placeholder="Gõ tên thuốc bạn cần mua...">
+                        <div id="medicine-results">
+                            <!-- Kết quả tìm kiếm sẽ hiển thị tại đây -->
+                        </div>
+                    </div>
+                    
+                    <!-- Form Mua Thuốc chính (ẩn/hiện khi chọn thuốc) -->
+                    <form method="POST" action="{{ url_for('order_medicine') }}" id="order-form" class="mt-3 p-3 border rounded" style="display: none;">
+                        <input type="hidden" name="medicine_id" id="form-med-id">
+                        
+                        <h5 class="text-success" id="selected-med-name"></h5>
+                        <p class="text-muted" id="selected-med-description"></p>
+                        
+                        <div class="row align-items-end">
+                            <div class="col-md-5 mb-3">
+                                <label for="form-quantity">Số lượng (Tồn kho: <span id="form-stock">0</span>)</label>
+                                <input type="number" name="quantity" id="form-quantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <span class="badge bg-info text-dark p-2" id="form-price"></span>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <button type="submit" class="btn btn-primary w-100">Mua ngay</button>
+                            </div>
+                        </div>
+                        
+                    </form>
+                    
+                </div>
+                
+            </div>
+            
+            <!-- CỘT PHẢI: Lịch sử -->
+            <div class="col-lg-6">
+                
+                <!-- Lịch sử LỊCH KHÁM -->
+                <h3 class="text-primary mb-3">Lịch Khám Của Bạn</h3>
+                <table class="table table-bordered table-striped mb-5">
+                    <thead>
+                        <tr>
+                            <th>Bệnh</th>
+                            <th>Ngày & Giờ</th>
+                            <th>Trạng thái</th>
+                            <th>Ảnh</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in appointments %}
+                        <tr>
+                            <td>{{ a[0] }}</td>
+                            <td>{{ a[1] }}</td>
+
+                            <td class="text-center">
+                                {% if a[2] == 'approved' %}
+                                  <span class="badge bg-success">Chấp nhận</span>
+                                {% elif a[2] == 'rejected' %}
+                                  <span class="badge bg-danger">Từ chối</span>
+                                {% else %}
+                                  <span class="badge bg-secondary">Đang chờ</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {% if a[3] %}
+                                  <a href="{{ url_for('uploaded_file', filename=a[3]) }}" target="_blank" class="btn btn-sm btn-primary">
+                                    Xem
+                                  </a>
+                                {% else %}
+                                  —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <!-- Lịch sử ĐƠN HÀNG -->
+                <h3 class="text-primary mb-3">Lịch Sử Đơn Hàng</h3>
+                <table class="table table-bordered table-striped mb-5">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Thuốc</th>
+                            <th>SL</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in orders %}
+                        <tr>
+                            <td>#{{ o[0] }}</td>
+                            <td>{{ o[1] }}</td>
+                            <td>{{ o[2] }}</td>
+                            <td>{{ "{:,.0f}".format(o[3]) }} VNĐ</td>
+                            <td class="text-center">
+                                {% if o[5] == 'processed' %}
+                                  <span class="badge bg-success">Đã xử lý</span>
+                                {% elif o[5] == 'cancelled' %}
+                                  <span class="badge bg-danger">Đã hủy</span>
+                                {% else %}
+                                  <span class="badge bg-warning text-dark">Đang chờ</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- CHATBOT BUTTON (NỔI) -->
+    <button id="chatbot-btn">💬</button>
+
+    <!-- CHATBOT BOX (NỔI) -->
+    <div id="chatbot-box">
+        <div id="chat-header">🤖 ChatBot - Trợ Lý Sức Khỏe</div>
+        <div id="chat-messages"></div>
+
+        <div id="chat-input-box">
+            <input id="chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
+            <button id="send-btn-chat">Gửi</button>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript giới hạn giờ + preview ảnh + CHATBOT LOGIC -->
+    <script>
+        // Lấy dữ liệu thuốc từ Flask (Jinja2) và lưu vào biến JavaScript
+        const ALL_MEDICINES = JSON.parse('{{ medicines | tojson | safe }}');
+        
+        // Hàm định dạng tiền tệ
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        
+        // === LOGIC MUA THUỐC (AUTOSUGGEST) ===
+        const searchInput = document.getElementById('medicine-search');
+        const resultsDiv = document.getElementById('medicine-results');
+        const orderForm = document.getElementById('order-form');
+        const formMedId = document.getElementById('form-med-id');
+        const formQuantity = document.getElementById('form-quantity');
+        const selectedMedName = document.getElementById('selected-med-name');
+        const selectedMedDescription = document.getElementById('selected-med-description');
+        const formStock = document.getElementById('form-stock');
+        const formPrice = document.getElementById('form-price');
+
+        // Hàm lọc và hiển thị kết quả
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            resultsDiv.innerHTML = '';
+            
+            if (query.length === 0) {
+                orderForm.style.display = 'none';
+                return;
+            }
+
+            const filtered = ALL_MEDICINES.filter(med => 
+                // m[1] là name, m[2] là description
+                med[1].toLowerCase().includes(query) || med[2].toLowerCase().includes(query)
+            );
+
+            if (filtered.length > 0) {
+                filtered.forEach(med => {
+                    const [id, name, description, price, stock] = med;
+                    
+                    const item = document.createElement('div');
+                    item.classList.add('medicine-result-item');
+                    item.innerHTML = `
+                        <div class="item-name">${name}</div>
+                        <div class="item-info">${description} - Giá: ${formatter.format(price)} (${stock} đơn vị)</div>
+                    `;
+                    
+                    // Gán sự kiện click để chọn thuốc
+                    item.addEventListener('click', () => selectMedicine(med));
+                    resultsDiv.appendChild(item);
+                });
+            } else {
+                resultsDiv.innerHTML = '<div class="p-3 text-muted">Không tìm thấy thuốc nào.</div>';
+            }
+        });
+        
+        // Hàm chọn thuốc
+        function selectMedicine(med) {
+            const [id, name, description, price, stock] = med;
+            
+            // 1. Cập nhật form
+            formMedId.value = id;
+            selectedMedName.innerText = name;
+            selectedMedDescription.innerText = description;
+            formStock.innerText = stock;
+            formPrice.innerText = formatter.format(price);
+            
+            // 2. Thiết lập giới hạn cho input số lượng
+            formQuantity.max = stock;
+            formQuantity.value = 1;
+            formQuantity.min = 1;
+            
+            // 3. Ẩn kết quả tìm kiếm và hiển thị form mua
+            resultsDiv.innerHTML = '';
+            searchInput.value = name;
+            orderForm.style.display = 'block';
+            
+            // 4. Nếu tồn kho = 0 thì vô hiệu hóa nút mua
+            if (stock === 0) {
+                formQuantity.disabled = true;
+                orderForm.querySelector('button[type="submit"]').disabled = true;
+                formPrice.innerText = "Hết hàng";
+            } else {
+                formQuantity.disabled = false;
+                orderForm.querySelector('button[type="submit"]').disabled = false;
+            }
+        }
+        
+        // Ẩn kết quả khi click ra ngoài
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.medicine-search-container') && event.target !== searchInput) {
+                // Chỉ xóa kết quả tìm kiếm nếu ô input rỗng hoặc đã chọn thuốc
+                if (searchInput.value === '' || formMedId.value) {
+                    resultsDiv.innerHTML = '';
+                }
+            }
+        });
+
+
+        // === LOGIC ĐẶT LỊCH & PREVIEW 
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('date-input');
+            const timeInput = document.getElementById('time-input');
+
+            const today_date = "{{ today_date }}";
+            const current_time = "{{ current_time }}";
+
+            // Logic giới hạn thời gian (không cho chọn quá khứ)
+            function updateMinTime() {
+                if (dateInput.value === today_date) timeInput.min = current_time;
+                else timeInput.min = null;
+            }
+
+            dateInput.addEventListener('change', updateMinTime);
+            updateMinTime();
+
+            // Logic Preview Ảnh
+            const imageUpload = document.getElementById('image-upload');
+            const previewImg = document.getElementById('preview');
+
+            imageUpload.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.style.display = 'none';
+                }
+            });
+            
+            // Khởi tạo tin nhắn chào mừng
+            addMessage("Chào bạn! Tôi là trợ lý sức khỏe AI. Hãy hỏi tôi về các vấn đề sức khỏe thường gặp.", "bot");
+        });
+
+        // === LOGIC CHATBOT ===
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtnChat = document.getElementById('send-btn-chat');
+        const chatbotBox = document.getElementById('chatbot-box');
+
+        // Hàm hiển thị tin nhắn trong hộp chat (Sử dụng CSS bong bóng)
+        function addMessage(text, sender, isError = false) {
+            const div = document.createElement("div");
+            div.className = "msg-" + sender;
+            if (isError) {
+                div.style.backgroundColor = '#f8d7da'; // Màu lỗi
+                div.style.color = '#721c24';
+            }
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div; // Trả về element để cập nhật loading
+        }
+        
+        // Hiển thị trạng thái đang gõ
+        function showLoading() {
+            const loadingHtml = `<div class="msg-bot" id="loading-dots">
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+                <span class="loading-dot"></span>
+            </div>`;
+            chatMessages.insertAdjacentHTML('beforeend', loadingHtml);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingElement = document.getElementById('loading-dots');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+
+        // Hàm gửi tin nhắn tới Flask Backend
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message === "") return;
+
+            // 1. Khóa input và nút gửi
+            chatInput.disabled = true;
+            sendBtnChat.disabled = true;
+
+            // 2. Hiển thị tin nhắn người dùng
+            addMessage(message, "user");
+            chatInput.value = ''; 
+            
+            // 3. Hiển thị loading
+            showLoading();
+
+            // 4. Gọi API Flask (/chatbot)
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'message': message })
+            })
+            .then(response => {
+                // Ẩn loading ngay khi nhận được phản hồi HTTP
+                hideLoading(); 
+                
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP: ${response.status}. Mã lỗi: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 5. Hiển thị phản hồi từ Bot
+                const reply = data.reply || "Xin lỗi, tôi không thể trả lời câu hỏi này.";
+                addMessage(reply, "bot");
+            })
+            .catch(error => {
+                // 6. Xử lý lỗi kết nối
+                hideLoading();
+                console.error("Lỗi Chatbot:", error);
+                addMessage(`Lỗi hệ thống: ${error.message}. Vui lòng kiểm tra console Flask.`, "bot", true);
+            })
+            .finally(() => {
+                // Mở lại input và nút gửi
+                chatInput.disabled = false;
+                sendBtnChat.disabled = false;
+                chatInput.focus();
+            });
+        }
+        
+        // === CONTROLLERS ===
+
+        /* Hiện/ẩn chatbot */
+        document.getElementById("chatbot-btn").onclick = () => {
+             chatbotBox.style.display = (chatbotBox.style.display === "flex") ? "none" : "flex";
+        };
+
+        /* Gửi tin nhắn chatbot */
+        sendBtnChat.onclick = sendMessage;
+        chatInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") sendMessage();
+        });
+        
+    </script>
+
+</body>
+</html>
